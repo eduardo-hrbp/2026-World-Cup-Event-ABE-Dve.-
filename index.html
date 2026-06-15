@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2026 월드컵 승부예측 챌린지</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+
+:root {
+  --bg: #f0f2f5;
+  --bg2: #e4e8ed;
+  --white: #ffffff;
+  --blue: #2563eb;
+  --blue-light: #eff6ff;
+  --blue-mid: #bfdbfe;
+  --green: #16a34a;
+  --green-light: #f0fdf4;
+  --green-mid: #bbf7d0;
+  --gold: #d97706;
+  --gold-light: #fffbeb;
+  --gold-mid: #fde68a;
+  --red: #dc2626;
+  --red-light: #fef2f2;
+  --text: #111827;
+  --text-mid: #374151;
+  --text-dim: #6b7280;
+  --text-xdim: #9ca3af;
+  --border: #e5e7eb;
+  --border-mid: #d1d5db;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.05);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  font-family: 'Noto Sans KR', sans-serif;
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 16px;
+}
+
+.page { max-width: 1140px; margin: 0 auto; padding: 0 24px 80px; }
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(135deg, #1d4ed8 0%, #0f766e 100%);
+  margin: 0 -24px;
+  padding: 48px 24px 40px;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '⚽';
+  position: absolute;
+  right: 40px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 120px;
+  opacity: 0.1;
+  line-height: 1;
+}
+.header-inner { max-width: 1140px; margin: 0 auto; }
+.header-eyebrow {
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.7);
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+.header-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(48px, 7vw, 88px);
+  line-height: 0.92;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+.header-title em { color: #fde68a; font-style: normal; }
+.header-desc {
+  margin-top: 14px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.75);
+  font-weight: 300;
+  line-height: 1.7;
+}
+.header-meta {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.h-pill {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.9);
+  font-weight: 500;
+}
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(239,68,68,0.9);
+  border-radius: 20px;
+  padding: 5px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 2px;
+}
+.live-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  animation: blink 1.2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── KPI ── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+@media(max-width:700px){ .kpi-row { grid-template-columns: repeat(2,1fr); } }
+
+.kpi {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 22px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+}
+.kpi::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--blue);
+}
+.kpi.green::before { background: var(--green); }
+.kpi.gold::before { background: var(--gold); }
+.kpi.red::before { background: var(--red); }
+.kpi-label { font-size: 11px; color: var(--text-dim); font-weight: 500; margin-bottom: 8px; letter-spacing: 0.5px; }
+.kpi-val { font-family: 'Bebas Neue', sans-serif; font-size: 40px; line-height: 1; color: var(--text); }
+.kpi-val.blue { color: var(--blue); }
+.kpi-val.green { color: var(--green); }
+.kpi-val.gold { color: var(--gold); }
+.kpi-sub { font-size: 12px; color: var(--text-dim); margin-top: 5px; }
+
+/* ── NOTICE ── */
+.notice {
+  background: #fff7ed;
+  border: 2px solid #fb923c;
+  border-left: 6px solid #ea580c;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 28px;
+  font-size: 16px;
+  color: var(--text);
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(234,88,12,0.15);
+}
+.notice strong { color: #c2410c; font-size: 18px; font-weight: 900; }
+.notice a { color: var(--blue); font-weight: 700; text-decoration: underline; margin-left: 8px; font-size: 15px; }
+
+/* ── SECTION TITLE ── */
+.s-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.s-title::after { content: ''; flex: 1; height: 1px; background: var(--border-mid); }
+
+/* ── GRID ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+@media(max-width:700px){ .grid-2 { grid-template-columns: 1fr; } }
+
+/* ── CARD ── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.card-head {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  background: #fafafa;
+}
+.card-title { font-size: 15px; font-weight: 700; color: var(--text); }
+.card-sub { font-size: 12px; color: var(--text-dim); }
+
+/* ── LEADERBOARD ── */
+.lb-head {
+  display: grid;
+  grid-template-columns: 36px 1fr 44px 44px 44px 52px;
+  gap: 6px;
+  padding: 8px 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-xdim);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #f9fafb;
+}
+.lb-head span { text-align: center; }
+.lb-head span:nth-child(2) { text-align: left; }
+
+.lb-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 44px 44px 44px 52px;
+  gap: 6px;
+  align-items: center;
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--border);
+  transition: background .15s;
+}
+.lb-row:last-child { border-bottom: none; }
+.lb-row:hover { background: #f9fafb; }
+.lb-row.top1 { background: var(--gold-light); }
+
+.rank {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  text-align: center;
+  color: var(--text-xdim);
+  line-height: 1;
+}
+.rank.r1 { color: var(--gold); }
+.rank.r2 { color: #9ca3af; }
+.rank.r3 { color: #cd7f32; }
+
+.lb-name { font-size: 16px; font-weight: 600; color: var(--text); }
+.lb-team { font-size: 13px; color: var(--text-dim); margin-top: 3px; }
+
+.lb-c { font-size: 14px; color: var(--text-dim); text-align: center; }
+.lb-c.hit { color: var(--green); font-weight: 700; }
+.lb-c.miss { color: var(--red-light); }
+
+.lb-pts {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 28px;
+  text-align: center;
+  color: var(--blue);
+  line-height: 1;
+}
+.lb-pts.top { color: var(--gold); }
+
+/* ── TEAM LB ── */
+.team-head {
+  display: grid;
+  grid-template-columns: 36px 1fr 60px 60px;
+  gap: 6px;
+  padding: 8px 20px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-xdim);
+  font-weight: 600;
+  text-transform: uppercase;
+  background: #f9fafb;
+}
+.team-head span { text-align: center; }
+.team-head span:nth-child(2) { text-align: left; }
+
+.team-row {
+  display: grid;
+  grid-template-columns: 36px 1fr 60px 60px;
+  gap: 6px;
+  align-items: center;
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--border);
+  transition: background .15s;
+}
+.team-row:last-child { border-bottom: none; }
+.team-row:hover { background: #f9fafb; }
+.team-row.top1 { background: var(--gold-light); }
+
+.team-name { font-size: 16px; font-weight: 600; color: var(--text); }
+.team-count { font-size: 13px; color: var(--text-dim); margin-top: 3px; }
+.team-avg {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 26px;
+  text-align: center;
+  color: var(--blue);
+  line-height: 1;
+}
+.team-avg.top { color: var(--gold); }
+.team-unit { font-size: 11px; color: var(--text-dim); text-align: center; }
+
+/* ── MATCH ── */
+.match-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.match-row:last-child { border-bottom: none; }
+.match-meta { min-width: 60px; }
+.match-round { font-size: 11px; font-weight: 700; color: var(--blue); letter-spacing: 0.5px; }
+.match-date { font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+.match-teams { flex: 1; display: flex; align-items: center; gap: 8px; }
+.flag { font-size: 24px; }
+.tname { font-size: 16px; font-weight: 600; color: var(--text); }
+.vs { font-size: 12px; color: var(--text-xdim); font-weight: 500; }
+.match-bar-wrap { min-width: 110px; }
+.bar-label { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-dim); margin-bottom: 4px; font-weight: 500; }
+.bar-track { height: 5px; background: var(--bg2); border-radius: 3px; display: flex; overflow: hidden; gap: 1px; }
+.bar-a { background: var(--blue); }
+.bar-d { background: #9ca3af; }
+.bar-b { background: var(--red); }
+.match-result { min-width: 72px; text-align: right; font-size: 13px; font-weight: 700; }
+.r-done { color: var(--green); }
+.r-live { color: var(--red); }
+.r-soon { color: var(--text-xdim); font-weight: 400; font-size: 12px; }
+
+/* ── TIMELINE ── */
+.tl-row {
+  display: grid;
+  grid-template-columns: 110px 14px 1fr 110px;
+  gap: 14px;
+  align-items: center;
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.tl-row:last-child { border-bottom: none; }
+.tl-date { font-size: 13px; color: var(--text-dim); }
+.tl-dot-wrap { display: flex; justify-content: center; }
+.tl-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border-mid); flex-shrink: 0; }
+.tl-dot.done { background: var(--green); }
+.tl-dot.active { background: var(--gold); box-shadow: 0 0 0 3px var(--gold-mid); }
+.tl-text { font-size: 14px; color: var(--text); font-weight: 500; }
+.tl-pts { font-size: 13px; color: var(--text-dim); text-align: right; }
+.badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-left: 7px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+.b-done { background: var(--green-light); color: var(--green); }
+.b-active { background: var(--gold-light); color: var(--gold); border: 1px solid var(--gold-mid); }
+.b-soon { background: var(--bg); color: var(--text-dim); border: 1px solid var(--border-mid); }
+.tl-pts { font-size: 12px; color: var(--text-dim); text-align: right; }
+
+/* ── GUIDE + PRIZE ── */
+.guide-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; padding: 18px 20px; }
+@media(max-width:600px){ .guide-grid { grid-template-columns: 1fr 1fr; } }
+
+.g-item {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.g-pts { font-family: 'Bebas Neue', sans-serif; font-size: 32px; line-height: 1; min-width: 34px; }
+.g-pts.blue { color: var(--blue); }
+.g-pts.green { color: var(--green); }
+.g-pts.gold { color: var(--gold); }
+.g-pts.red { color: var(--red); }
+.g-desc { font-size: 14px; font-weight: 600; color: var(--text); }
+.g-sub { font-size: 12px; color: var(--text-dim); margin-top: 3px; line-height: 1.5; }
+
+.prize-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; padding: 16px 20px; }
+@media(max-width:600px){ .prize-grid { grid-template-columns: repeat(2,1fr); } }
+
+.prize-item {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 12px;
+  text-align: center;
+}
+.prize-item.highlight { background: var(--gold-light); border-color: var(--gold-mid); }
+.prize-icon { font-size: 30px; margin-bottom: 8px; }
+.prize-tier { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+.prize-who { font-size: 13px; font-weight: 700; color: var(--text); margin: 5px 0 4px; }
+.prize-what { font-size: 12px; color: var(--blue); font-weight: 600; }
+
+/* ── TIEBREAK ── */
+.tiebreak {
+  padding: 10px 20px;
+  border-top: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--text-dim);
+  background: #f9fafb;
+  font-style: italic;
+}
+
+/* ── MORE ── */
+.more-row {
+  padding: 11px 20px;
+  font-size: 12px;
+  color: var(--text-xdim);
+  text-align: center;
+  border-top: 1px solid var(--border);
+  background: #f9fafb;
+}
+
+/* ── FOOTER ── */
+footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-mid);
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-dim);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+footer a { color: var(--blue); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-eyebrow">신성장사업개발본부 · 2026 FIFA World Cup</div>
+    <div class="header-title">승부예측<br><em>챌린지</em></div>
+    <div class="header-desc">매 경기 결과를 예측하고 포인트를 쌓으세요 — 개인전 + 팀 대항전, 두 가지 우승을 노려보세요!</div>
+    <div class="header-meta">
+      <div class="h-pill">📅 2026.06.16 – 07.19</div>
+      <div class="h-pill">👥 참여자 112명 / 150명</div>
+      <div class="h-pill">⚽ 총 33경기 예측</div>
+      <div class="live-badge">LIVE</div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- KPI -->
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-label">참여자</div>
+      <div class="kpi-val blue">112</div>
+      <div class="kpi-sub">/ 150명 목표</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">완료 경기</div>
+      <div class="kpi-val">1</div>
+      <div class="kpi-sub">/ 33경기</div>
+    </div>
+    <div class="kpi green">
+      <div class="kpi-label">현재 개인 1위</div>
+      <div class="kpi-val green" style="font-size:26px;line-height:1.3;">홍길동</div>
+      <div class="kpi-sub">DC사업팀 · 3pts</div>
+    </div>
+    <div class="kpi gold">
+      <div class="kpi-label">현재 팀 1위</div>
+      <div class="kpi-val gold" style="font-size:22px;line-height:1.3;">DC사업팀</div>
+      <div class="kpi-sub">평균 2.1pts</div>
+    </div>
+    <div class="kpi red">
+      <div class="kpi-label">다음 예측 마감</div>
+      <div class="kpi-val" style="font-size:26px;line-height:1.3;color:var(--red);">D-1</div>
+      <div class="kpi-sub">6/18(목) 자정 · 2차전</div>
+    </div>
+  </div>
+
+  <!-- NOTICE -->
+  <div class="notice">
+    <span style="font-size:28px;flex-shrink:0;">📢</span>
+    <div>
+      <strong>예측 마감 임박!</strong> 2차전 한국 vs 멕시코 (6/19 오전 10:00) 예측이
+      <strong>6월 18일(목) 자정</strong>까지입니다.
+      <a href="#">→ 지금 바로 예측 제출하기</a>
+    </div>
+  </div>
+
+  <!-- 순위표 -->
+  <div class="s-title">실시간 순위</div>
+  <div class="grid-2">
+
+    <!-- 개인 순위 -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">🏅 개인 순위</div>
+        <div class="card-sub">누적 포인트 기준 · 1경기 완료</div>
+      </div>
+      <div class="lb-head">
+        <span>#</span><span>이름</span><span>적중</span><span>스코어</span><span>득점자</span><span>PTS</span>
+      </div>
+      <div class="lb-row top1">
+        <div class="rank r1">1</div>
+        <div><div class="lb-name">홍길동</div><div class="lb-team">DC사업팀</div></div>
+        <div class="lb-c hit">✓</div><div class="lb-c hit">✓</div><div class="lb-c hit">✓</div>
+        <div class="lb-pts top">3</div>
+      </div>
+      <div class="lb-row">
+        <div class="rank r2">2</div>
+        <div><div class="lb-name">김철수</div><div class="lb-team">해외개발팀</div></div>
+        <div class="lb-c hit">✓</div><div class="lb-c hit">✓</div><div class="lb-c">–</div>
+        <div class="lb-pts">2</div>
+      </div>
+      <div class="lb-row">
+        <div class="rank r2">2</div>
+        <div><div class="lb-name">이영희</div><div class="lb-team">스마트시티TF</div></div>
+        <div class="lb-c hit">✓</div><div class="lb-c hit">✓</div><div class="lb-c">–</div>
+        <div class="lb-pts">2</div>
+      </div>
+      <div class="lb-row">
+        <div class="rank r2">2</div>
+        <div><div class="lb-name">박지영</div><div class="lb-team">신성장기획1팀</div></div>
+        <div class="lb-c hit">✓</div><div class="lb-c hit">✓</div><div class="lb-c">–</div>
+        <div class="lb-pts">2</div>
+      </div>
+      <div class="lb-row">
+        <div class="rank">5</div>
+        <div><div class="lb-name">최민준</div><div class="lb-team">투자팀</div></div>
+        <div class="lb-c hit">✓</div><div class="lb-c">–</div><div class="lb-c">–</div>
+        <div class="lb-pts">1</div>
+      </div>
+      <div class="lb-row">
+        <div class="rank">5</div>
+        <div><div class="lb-name">윤서경</div><div class="lb-team">모듈러건설팀</div></div>
+        <div class="lb-c hit">✓</div><div class="lb-c">–</div><div class="lb-c">–</div>
+        <div class="lb-pts">1</div>
+      </div>
+      <div class="lb-row">
+        <div class="rank">5</div>
+        <div><div class="lb-name">정민재</div><div class="lb-team">국내개발팀</div></div>
+        <div class="lb-c hit">✓</div><div class="lb-c">–</div><div class="lb-c">–</div>
+        <div class="lb-pts">1</div>
+      </div>
+      <div class="more-row">· · · 105명 더보기 · · ·</div>
+      <div class="tiebreak">※ 동점 시: 스코어 적중 횟수 → 첫득점자 적중 횟수 → 추첨 순으로 결정</div>
+    </div>
+
+    <!-- 팀 순위 -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">🏆 팀 대항전 순위</div>
+        <div class="card-sub">팀 평균 득점 기준 · 1위 팀 단체 회식비 지원</div>
+      </div>
+      <div class="team-head">
+        <span>#</span><span>팀명</span><span>평균</span><span>참여</span>
+      </div>
+      <div class="team-row top1">
+        <div class="rank r1">1</div>
+        <div><div class="team-name">DC사업팀</div><div class="team-count">참여 9명</div></div>
+        <div class="team-avg top">2.1</div>
+        <div class="team-unit">pts</div>
+      </div>
+      <div class="team-row">
+        <div class="rank r2">2</div>
+        <div><div class="team-name">해외개발팀</div><div class="team-count">참여 8명</div></div>
+        <div class="team-avg">1.9</div>
+        <div class="team-unit">pts</div>
+      </div>
+      <div class="team-row">
+        <div class="rank r3">3</div>
+        <div><div class="team-name">스마트시티TF</div><div class="team-count">참여 7명</div></div>
+        <div class="team-avg">1.7</div>
+        <div class="team-unit">pts</div>
+      </div>
+      <div class="team-row">
+        <div class="rank">4</div>
+        <div><div class="team-name">신성장기획1팀</div><div class="team-count">참여 10명</div></div>
+        <div class="team-avg">1.5</div>
+        <div class="team-unit">pts</div>
+      </div>
+      <div class="team-row">
+        <div class="rank">5</div>
+        <div><div class="team-name">투자팀</div><div class="team-count">참여 6명</div></div>
+        <div class="team-avg">1.3</div>
+        <div class="team-unit">pts</div>
+      </div>
+      <div class="team-row">
+        <div class="rank">6</div>
+        <div><div class="team-name">모듈러건설팀</div><div class="team-count">참여 8명</div></div>
+        <div class="team-avg">1.2</div>
+        <div class="team-unit">pts</div>
+      </div>
+      <div class="team-row">
+        <div class="rank">7</div>
+        <div><div class="team-name">국내개발팀</div><div class="team-count">참여 7명</div></div>
+        <div class="team-avg">1.1</div>
+        <div class="team-unit">pts</div>
+      </div>
+      <div class="more-row">· · · 5개 팀 더보기 · · ·</div>
+    </div>
+  </div>
+
+  <!-- 경기 현황 -->
+  <div class="s-title">경기 예측 현황</div>
+  <div class="card" style="margin-bottom:28px;">
+    <div class="card-head">
+      <div class="card-title">⚽ 경기별 예측 분포</div>
+      <div class="card-sub">파랑 = 한국(홈)승 / 회색 = 무승부 / 빨강 = 상대승</div>
+    </div>
+
+    <div class="match-row">
+      <div class="match-meta">
+        <div class="match-round">🇰🇷 1차전</div>
+        <div class="match-date">6/12 완료</div>
+      </div>
+      <div class="match-teams">
+        <span class="flag">🇰🇷</span><span class="tname">한국</span>
+        <span class="vs">vs</span>
+        <span class="flag">🇨🇿</span><span class="tname">체코</span>
+      </div>
+      <div class="match-bar-wrap">
+        <div class="bar-label"><span>참여자 전원</span><span>1pt 기본 부여</span></div>
+        <div class="bar-track"><div class="bar-a" style="width:100%"></div></div>
+      </div>
+      <div class="match-result r-done">2-1 🇰🇷 ✓</div>
+    </div>
+
+    <div class="match-row" style="background:#fffbeb;">
+      <div class="match-meta">
+        <div class="match-round">🇰🇷 2차전</div>
+        <div class="match-date">6/19 오전 10시</div>
+      </div>
+      <div class="match-teams">
+        <span class="flag">🇰🇷</span><span class="tname">한국</span>
+        <span class="vs">vs</span>
+        <span class="flag">🇲🇽</span><span class="tname">멕시코</span>
+      </div>
+      <div class="match-bar-wrap">
+        <div class="bar-label"><span>44%</span><span>21%</span><span>35%</span></div>
+        <div class="bar-track">
+          <div class="bar-a" style="width:44%"></div>
+          <div class="bar-d" style="width:21%"></div>
+          <div class="bar-b" style="width:35%"></div>
+        </div>
+      </div>
+      <div class="match-result r-live">🔴 예측중</div>
+    </div>
+
+    <div class="match-row" style="opacity:.6;">
+      <div class="match-meta">
+        <div class="match-round">🇰🇷 3차전</div>
+        <div class="match-date">6/25 오전 10시</div>
+      </div>
+      <div class="match-teams">
+        <span class="flag">🇰🇷</span><span class="tname">한국</span>
+        <span class="vs">vs</span>
+        <span class="flag">🇿🇦</span><span class="tname">남아공</span>
+      </div>
+      <div class="match-bar-wrap">
+        <div class="bar-label"><span>—</span><span>—</span><span>—</span></div>
+        <div class="bar-track"><div class="bar-d" style="width:100%"></div></div>
+      </div>
+      <div class="match-result r-soon">6/23 오픈</div>
+    </div>
+
+    <div class="match-row" style="opacity:.45;">
+      <div class="match-meta">
+        <div class="match-round">⚡ 32강</div>
+        <div class="match-date">6/28~ 오픈</div>
+      </div>
+      <div class="match-teams" style="color:var(--text-dim);font-size:13px;">
+        16경기 · 승패만 예측 (2택1) · 조별리그 종료 후 대진 확정
+      </div>
+      <div class="match-bar-wrap"></div>
+      <div class="match-result r-soon">대기중</div>
+    </div>
+
+    <div class="match-row" style="opacity:.45;">
+      <div class="match-meta">
+        <div class="match-round">🏆 16강~결승</div>
+        <div class="match-date">7/4~ 오픈</div>
+      </div>
+      <div class="match-teams" style="color:var(--text-dim);font-size:13px;">
+        15경기 · 승패+스코어 · 16강 시 우승팀 예측(+3점) 수집
+      </div>
+      <div class="match-bar-wrap"></div>
+      <div class="match-result r-soon">대기중</div>
+    </div>
+  </div>
+
+  <!-- 점수체계 + 포상 -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-head"><div class="card-title">📊 점수 체계</div></div>
+      <div class="guide-grid">
+        <div class="g-item">
+          <div class="g-pts blue">1</div>
+          <div><div class="g-desc">승무패 적중</div><div class="g-sub">기본 점수 · 전 라운드</div></div>
+        </div>
+        <div class="g-item">
+          <div class="g-pts blue">+1</div>
+          <div><div class="g-desc">스코어 적중</div><div class="g-sub">조별리그 · 16강~결승</div></div>
+        </div>
+        <div class="g-item">
+          <div class="g-pts green">+1</div>
+          <div><div class="g-desc">첫득점자 적중</div><div class="g-sub">한국 경기 2경기만</div></div>
+        </div>
+        <div class="g-item">
+          <div class="g-pts gold">+3</div>
+          <div><div class="g-desc">우승팀 예측</div><div class="g-sub">16강 폼에서 1회 수집</div></div>
+        </div>
+        <div class="g-item">
+          <div class="g-pts gold">+1</div>
+          <div><div class="g-desc">결승 스코어</div><div class="g-sub">결승 한정 보너스</div></div>
+        </div>
+        <div class="g-item">
+          <div class="g-pts green">1</div>
+          <div><div class="g-desc">1차전 기본 부여</div><div class="g-sub">참여 신청자 전원</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-title">🎁 포상 안내</div>
+        <div class="card-sub">결승 후 7월 본부 정기모임 시상</div>
+      </div>
+      <div class="prize-grid">
+        <div class="prize-item highlight">
+          <div class="prize-icon">🥇</div>
+          <div class="prize-tier">개인 대상</div>
+          <div class="prize-who">최종 1위</div>
+          <div class="prize-what">문화체험권</div>
+        </div>
+        <div class="prize-item">
+          <div class="prize-icon">🥈🥉</div>
+          <div class="prize-tier">개인 우수상</div>
+          <div class="prize-who">2 · 3위</div>
+          <div class="prize-what">치킨+맥주 🍺</div>
+        </div>
+        <div class="prize-item">
+          <div class="prize-icon">🍀</div>
+          <div class="prize-tier">참여상</div>
+          <div class="prize-who">추첨</div>
+          <div class="prize-what">편의점 상품권</div>
+        </div>
+        <div class="prize-item" style="border-color:#bfdbfe;background:#eff6ff;">
+          <div class="prize-icon">🏆</div>
+          <div class="prize-tier">팀 대항전</div>
+          <div class="prize-who">팀 평균 1위</div>
+          <div class="prize-what">단체 회식비</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 일정 -->
+  <div class="s-title">추진 일정</div>
+  <div class="card" style="margin-bottom:28px;">
+    <div class="tl-row">
+      <div class="tl-date">6/16(화)</div>
+      <div class="tl-dot-wrap"><div class="tl-dot done"></div></div>
+      <div class="tl-text">참여 신청 오픈 + 전체 공지 <span class="badge b-done">완료</span></div>
+      <div class="tl-pts">참여자 전원 1pt</div>
+    </div>
+    <div class="tl-row" style="background:var(--gold-light);">
+      <div class="tl-date">6/18(목) 자정</div>
+      <div class="tl-dot-wrap"><div class="tl-dot active"></div></div>
+      <div class="tl-text">🇰🇷 2차전 예측 마감 <span class="badge b-active">D-1</span></div>
+      <div class="tl-pts">최대 3pts/경기</div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-date">6/24(수) 자정</div>
+      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+      <div class="tl-text">🇰🇷 3차전 예측 마감 <span class="badge b-soon">예정</span></div>
+      <div class="tl-pts">최대 3pts/경기</div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-date">6/28(토)</div>
+      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+      <div class="tl-text">⚡ 32강 예측 오픈 (16경기 · 승패만)</div>
+      <div class="tl-pts">16pts</div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-date">7/3(금)</div>
+      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+      <div class="tl-text">🏆 16강 예측 오픈 + 우승팀 예측 수집</div>
+      <div class="tl-pts">최대 19pts</div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-date">7/9~7/15</div>
+      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+      <div class="tl-text">8강 · 4강 예측</div>
+      <div class="tl-pts">최대 12pts</div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-date">7/19(일)</div>
+      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+      <div class="tl-text">🏆 결승 → 최종 순위 확정</div>
+      <div class="tl-pts">최대 3pts</div>
+    </div>
+    <div class="tl-row">
+      <div class="tl-date">7월 중</div>
+      <div class="tl-dot-wrap"><div class="tl-dot"></div></div>
+      <div class="tl-text">🎁 시상식 (본부 정기모임)</div>
+      <div class="tl-pts"></div>
+    </div>
+  </div>
+
+  <footer>
+    <div>신성장사업개발본부 기획2팀 주관 · 문의: 내선 ####</div>
+    <div>예측 제출: <a href="#">MS Forms 링크</a> · 마지막 업데이트: 2026.06.16</div>
+  </footer>
+
+</div>
+</body>
+</html>
