@@ -282,6 +282,10 @@ footer {
             <span class="round-name">🏆 8강 진출국 예측</span>
             <span class="round-pt" id="rR8"></span>
           </div>
+          <div class="round-item">
+            <span class="round-name">🎯 보너스 점수</span>
+            <span class="round-pt" id="rBonus"></span>
+          </div>
         </div>
       </div>
     </div>
@@ -318,7 +322,7 @@ function search() {
     document.getElementById('rName').textContent = found.name;
     document.getElementById('rTeam').textContent = found.team;
     document.getElementById('rRank').textContent = found.rank + '위';
-    document.getElementById('rTotal').textContent = found.total + 'pt';
+    document.getElementById('rTotal').textContent = found.personal_total + 'pt';
 
     const czEl = document.getElementById('rCz');
     czEl.textContent = found.cz + 'pt';
@@ -339,6 +343,11 @@ function search() {
     const r8El = document.getElementById('rR8');
     r8El.textContent = found.r8 + 'pt';
     r8El.className = 'round-pt' + (found.r8 === 0 ? ' zero' : '');
+
+    const bonusEl = document.getElementById('rBonus');
+    const bonus = found.personal_bonus || 0;
+    bonusEl.textContent = bonus > 0 ? '+' + bonus + 'pt' : '0pt';
+    bonusEl.className = 'round-pt' + (bonus === 0 ? ' zero' : '');
 
     result.style.display = 'block';
     notFound.style.display = 'none';
